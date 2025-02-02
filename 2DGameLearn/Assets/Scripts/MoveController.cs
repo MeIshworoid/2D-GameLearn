@@ -5,21 +5,19 @@ public class MoveController : MonoBehaviour
     private Rigidbody2D _rb;
     private Animator _animator;
 
-    [SerializeField]
-    private float _moveSpeed;
-    [SerializeField]
-    private float _jumpPower;
+    [SerializeField] private float _moveSpeed;
+    [SerializeField] private float _jumpPower;
     private float _xInput;
     private bool isFacingRight = true;
 
     [Header("Collision Check")]
-    [SerializeField]
-    private Transform groundDetector;
-    [SerializeField]
-    private float groundDetectorRadius;
-    [SerializeField]
-    private LayerMask groundDetectorLayerMask;
+    [SerializeField] private Transform groundDetector;
+    [SerializeField] private float groundDetectorRadius;
+    [SerializeField] private LayerMask groundDetectorLayerMask;
     private bool isGroundDetected;
+
+    [SerializeField] private ParticleSystem _moveDustVFX;
+    [SerializeField] private ParticleSystem _poofDustVFX;
 
     void Start()
     {
@@ -32,6 +30,7 @@ public class MoveController : MonoBehaviour
         AnimationController();
         CollisionChecks();
         FlipController();
+        DetectMoveDust();
 
         // Horizontal Movement
         _xInput = Input.GetAxisRaw("Horizontal");
@@ -58,11 +57,13 @@ public class MoveController : MonoBehaviour
 
     private void FlipController()
     {
-        if (_rb.velocity.x < 0 && isFacingRight)
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        if (mousePos.x < transform.position.x && isFacingRight)
         {
             Flip();
         }
-        else if (_rb.velocity.x > 0 && !isFacingRight)
+        else if (mousePos.x > transform.position.x && !isFacingRight)
         {
             Flip();
         }
@@ -84,7 +85,30 @@ public class MoveController : MonoBehaviour
         if (isGroundDetected)
         {
             _rb.velocity = new Vector2(_rb.velocity.x, _jumpPower);
+            PlayPoofDustVFX();
         }
+    }
+
+    private void DetectMoveDust()
+    {
+        if (isGroundDetected)
+        {
+            if (!_moveDustVFX.isPlaying)
+            {
+                _moveDustVFX.Play();
+            }
+        }
+        else
+        {
+            if (_moveDustVFX.isPlaying)
+            {
+                _moveDustVFX.Stop();
+            }
+        }
+    }
+    private void PlayPoofDustVFX()
+    {
+        _poofDustVFX.Play();
     }
 
     private void OnDrawGizmos()
