@@ -11,7 +11,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Word"))
+        if (other.CompareTag("Target"))
         {
             Destroy(gameObject);
             Destroy(other.gameObject);
